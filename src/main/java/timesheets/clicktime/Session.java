@@ -1,4 +1,4 @@
-package timesheets.clicktime.Clicktime_Timesheet_API;
+package timesheets.clicktime;
 
 import java.util.HashMap;
 import java.util.Map;

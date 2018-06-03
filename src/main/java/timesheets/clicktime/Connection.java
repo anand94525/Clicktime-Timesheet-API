@@ -1,4 +1,4 @@
-package timesheets.clicktime.Clicktime_Timesheet_API;
+package timesheets.clicktime;
 
 import io.restassured.RestAssured;
 import io.restassured.http.Header;
