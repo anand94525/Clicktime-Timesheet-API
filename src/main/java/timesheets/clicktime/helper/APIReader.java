@@ -1,9 +1,10 @@
-package timesheets.clicktime;
+package timesheets.clicktime.helper;
 
 import io.restassured.RestAssured;
 import io.restassured.http.Header;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import timesheets.clicktime.pojo.UserInfo;
 
 public class APIReader {
 	private RequestSpecification httpRequest = null;

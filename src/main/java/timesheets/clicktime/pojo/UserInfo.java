@@ -1,4 +1,4 @@
-package timesheets.clicktime;
+package timesheets.clicktime.pojo;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -19,10 +19,13 @@ public class UserInfo {
 		return password;
 	}
 	
+	/**
+	 * Encodes username and password using BASE64.
+	 * 
+	 * @return encoded key for authorization.
+	 */
 	public String getAuthKey() {
-		// Encode data on your side using BASE64
 		byte[] bytesEncoded = Base64.encodeBase64((username + ":" + password).getBytes());
-		System.out.println(new String(bytesEncoded) + ":::" + username + password);
 		return new String(bytesEncoded);
 	}
 
