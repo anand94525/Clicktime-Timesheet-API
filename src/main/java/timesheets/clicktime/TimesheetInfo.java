@@ -11,6 +11,7 @@ public class TimesheetInfo extends BaseClicktime{
 	public static void main(String... args) {
 		USERS.forEach(i -> {
 			APIReader reader = APIReader.openConnection(i);
+			System.out.println(getTasks(reader).size());
 			getTasks(reader).forEach((x,y)-> System.out.println("key : " + x + " , value : " + y));
 		});
 	}

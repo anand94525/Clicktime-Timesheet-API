@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -15,6 +16,7 @@ import timesheets.clicktime.common.JsonHelper;
 import timesheets.clicktime.helper.APIReader;
 import timesheets.clicktime.helper.Session;
 import timesheets.clicktime.pojo.Tasks;
+import timesheets.clicktime.pojo.TimeOffTypes;
 import timesheets.clicktime.pojo.UserInfo;
 
 public class BaseClicktime {
@@ -39,13 +41,14 @@ public class BaseClicktime {
 	    }
 	 
 	 protected static Map<String, String> getTasks(APIReader apiReader) {
-			Map<String, String>  taskIdNameMap = new HashMap<>();
-			USERS.forEach(i -> {
-				APIReader reader = APIReader.openConnection(i);
-				Session session = reader.getSession();
-				String tasks = reader.execute(String.format(CT_URLS.TASKS.getUrl(), session.getCompanyID(), session.getUserID()));
-				taskIdNameMap.putAll(JsonHelper.jsonToList(tasks, Tasks.class).stream().collect(Collectors.toMap(Tasks::getTaskID, Tasks::getDisplayName)));
-			});
-			return taskIdNameMap;
+		Map<String, String> allTasks = new HashMap<>();
+		Session session = apiReader.getSession();
+		String tasks = apiReader.execute(String.format(CT_URLS.TASKS.getUrl(), session.getCompanyID(), session.getUserID()));
+		allTasks.putAll(((List<Tasks>)JsonHelper.jsonToList(tasks, Tasks.class)).stream().collect(Collectors.toMap(Tasks::getTaskID, Tasks::getDisplayName)));
+		
+		String tasks1 = apiReader.execute(String.format(CT_URLS.TIME_OFF_TYPES.getUrl(), session.getCompanyID(), session.getUserID()));
+		allTasks.putAll(((List<TimeOffTypes>)JsonHelper.jsonToList(tasks1, TimeOffTypes.class)).stream().collect(Collectors.toMap(TimeOffTypes::getTimeOffTypeID, TimeOffTypes::getName)));
+
+		return allTasks;
 	}
 }
