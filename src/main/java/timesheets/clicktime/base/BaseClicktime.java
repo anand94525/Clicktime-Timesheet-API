@@ -51,4 +51,8 @@ public class BaseClicktime {
 
 		return allTasks;
 	}
+	 
+	 protected static String formatUrl(String url, Object... params) {
+		 return String.format(url, params);
+	 }
 }
