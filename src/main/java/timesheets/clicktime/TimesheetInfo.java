@@ -5,9 +5,16 @@ import timesheets.clicktime.common.CT_URLS;
 import timesheets.clicktime.common.JsonHelper;
 import timesheets.clicktime.helper.APIReader;
 import timesheets.clicktime.helper.Session;
+import timesheets.clicktime.pojo.TimeEntryDetails;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 public class TimesheetInfo extends BaseClicktime{
 	
 	//Main method to test.
@@ -30,8 +37,17 @@ public class TimesheetInfo extends BaseClicktime{
 			Session session = reader.getSession();
 			String entries = reader.execute(formatUrl(CT_URLS.TIME_ENTRIES_FROM_TO_DATE.getUrl(), session.getCompanyID(), session.getUserID(), dateFrom, dateTo));
 			// TODO
-			List<Double> billableHours = (List<Double>) JsonHelper.readJson(entries, "$[*].TimeEntries[*].Hours");
-			billableHours.forEach(j -> System.out.println("Hours : " + j));
+			//List<Double> billableHours = (List<Double>) JsonHelper.readJson(entries, "$[*].TimeEntries[*].Hours");
+			//billableHours.forEach(j -> System.out.println("Hours : " + j));
+			
+//			JSONArray objects = (JSONArray) JsonHelper.readJson(entries, "$[*]");
+//			for(int j=0; j < objects.size(); j++) {
+//				objects.get(0)
+//				Map<String, List<String>> dateWiseTimeSheet = new HashMap<>();
+//			}
+			TypeReference<List<TimeEntryDetails>> mapType = new TypeReference<List<TimeEntryDetails>>() {};
+			List<TimeEntryDetails> entryList = JsonHelper.jsonToObjectList(entries, mapType);
+			entryList.forEach(k -> System.out.println(k.toString()));
 		});
 		return null;
 	}
