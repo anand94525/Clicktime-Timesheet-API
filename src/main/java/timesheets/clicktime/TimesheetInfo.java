@@ -21,8 +21,8 @@ public class TimesheetInfo extends BaseClicktime{
 	public static void main1(String... args) {
 		USERS.forEach(i -> {
 			APIReader reader = APIReader.openConnection(i);
-			System.out.println(getTasks(reader).size());
-			getTasks(reader).forEach((x,y)-> System.out.println("key : " + x + " , value : " + y));
+			System.out.println(TimesheetInfoHelper.getTasks(reader).size());
+			TimesheetInfoHelper.getTasks(reader).forEach((x,y)-> System.out.println("key : " + x + " , value : " + y));
 		});
 	}
 	
@@ -36,7 +36,7 @@ public class TimesheetInfo extends BaseClicktime{
 		USERS.forEach(i -> {
 			APIReader reader = APIReader.openConnection(i);
 			Session session = reader.getSession();
-			String entries = reader.execute(formatUrl(CT_URLS.TIME_ENTRIES_FROM_TO_DATE.getUrl(), session.getCompanyID(), session.getUserID(), dateFrom, dateTo));
+			String entries = reader.execute(TimesheetInfoHelper.formatUrl(CT_URLS.TIME_ENTRIES_FROM_TO_DATE.getUrl(), session.getCompanyID(), session.getUserID(), dateFrom, dateTo));
 			
 			TypeReference<List<TimeEntryDetails>> mapType = new TypeReference<List<TimeEntryDetails>>() {};
 			List<TimeEntryDetails> entryList = JsonHelper.jsonToObjectList(entries, mapType);
