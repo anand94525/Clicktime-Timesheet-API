@@ -5,16 +5,16 @@ import timesheets.clicktime.common.CT_URLS;
 import timesheets.clicktime.common.JsonHelper;
 import timesheets.clicktime.helper.APIReader;
 import timesheets.clicktime.helper.Session;
+import timesheets.clicktime.helper.TimesheetInfoHelper;
 import timesheets.clicktime.pojo.TimeEntryDetails;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.lang3.tuple.Pair;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
 public class TimesheetInfo extends BaseClicktime{
 	
 	//Main method to test.
@@ -26,33 +26,34 @@ public class TimesheetInfo extends BaseClicktime{
 		});
 	}
 	
-	//TODO : Need to add logic _ In progress
+	//TODO : Need to add logic for filtering billable hours only. Also, Need to refactor code.
 	// Map<String, Map<String, Pair<Double, Double>>> should be the return type. 
 	// Outer map will hold username as a key and value as map.
 	// The value map will contain date as a key and Pair as a value.
 	// first value of pair will contain billable hour and second value of pair will contain Time OFF hours such as PTO, company holiday hours.
-	public static Map<String, Map<String, List<String>>> getBillableHours(String dateFrom, String dateTo) {
+	public static Map<String, Map<String, Pair<Double, Double>>> getBillableHours(String dateFrom, String dateTo) {
+		Map<String, Map<String, Pair<Double, Double>>> userwiseTimeSheet = new ConcurrentHashMap<>();
 		USERS.forEach(i -> {
 			APIReader reader = APIReader.openConnection(i);
 			Session session = reader.getSession();
 			String entries = reader.execute(formatUrl(CT_URLS.TIME_ENTRIES_FROM_TO_DATE.getUrl(), session.getCompanyID(), session.getUserID(), dateFrom, dateTo));
-			// TODO
-			//List<Double> billableHours = (List<Double>) JsonHelper.readJson(entries, "$[*].TimeEntries[*].Hours");
-			//billableHours.forEach(j -> System.out.println("Hours : " + j));
 			
-//			JSONArray objects = (JSONArray) JsonHelper.readJson(entries, "$[*]");
-//			for(int j=0; j < objects.size(); j++) {
-//				objects.get(0)
-//				Map<String, List<String>> dateWiseTimeSheet = new HashMap<>();
-//			}
 			TypeReference<List<TimeEntryDetails>> mapType = new TypeReference<List<TimeEntryDetails>>() {};
 			List<TimeEntryDetails> entryList = JsonHelper.jsonToObjectList(entries, mapType);
-			entryList.forEach(k -> System.out.println(k.toString()));
+			Map<String, Pair<Double, Double>> datewiseEntries = TimesheetInfoHelper.getDatewiseTimeEntries(entryList);
+			userwiseTimeSheet.put(i.getUsername(), datewiseEntries);
 		});
-		return null;
+		return userwiseTimeSheet;
 	}
 	
+	public static Map<String, Map<String, Pair<Double, Double>>> getBillableHours(String dateFrom) {
+		return getBillableHours(dateFrom, dateFrom);
+	}
+
 	public static void main(String[] args) {
-		getBillableHours("20180501", "20180503");
+		Map<String, Map<String, Pair<Double, Double>>> map = getBillableHours("20180502");
+		for (Entry<String, Map<String, Pair<Double, Double>>> entry : map.entrySet()) {
+			entry.getValue().forEach((i, j) -> System.out.println("User :: " + entry.getKey() + "::: Date :" + i + " Working hours :" + j.getLeft() + " ::: Off hours :" + j.getRight()));
+		}
 	}
 }
