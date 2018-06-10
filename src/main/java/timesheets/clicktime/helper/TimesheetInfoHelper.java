@@ -18,19 +18,23 @@ import timesheets.clicktime.pojo.TimeOffTypes;
 
 public class TimesheetInfoHelper {
 	
-	public static Map<String, Pair<Double, Double>> getDatewiseTimeEntries(List<TimeEntryDetails> entryList) {
+	public static Map<String, Pair<Double, Double>> getDatewiseTimeEntries(List<TimeEntryDetails> entryList, Map<String, String> tasks) {
 		Map<String, Pair<Double, Double>> datewiseEntries = new ConcurrentHashMap<>();
 		//entryList.forEach(j -> System.out.println(k.toString()));
 		entryList.forEach(j -> {
 			//Need to refactor, remove duplicate for loops
 			MutableDouble timeEntries = new MutableDouble(0);
 			j.getTimeEntries().forEach(timeEntry -> {
-				timeEntries.add(timeEntry.getHours());
+				if(tasks.containsKey(timeEntry.getTaskID())) {
+					timeEntries.add(timeEntry.getHours());
+				}
 			});
 			
 			MutableDouble timeOffEntries = new MutableDouble(0);
 			j.getTimeOffEntries().forEach(timeOffEntry -> {
-				timeOffEntries.add(timeOffEntry.getHours());
+				if(tasks.containsKey(timeOffEntry.getTimeOffEntryID())) {
+					timeOffEntries.add(timeOffEntry.getHours());
+				}
 			});
 			
 			Pair<Double, Double> timeOnAndOffEntries = new ImmutablePair<>(timeEntries.doubleValue(), timeOffEntries.doubleValue());
@@ -39,6 +43,7 @@ public class TimesheetInfoHelper {
 		return datewiseEntries;
 	}
 	
+	//TODO : Need to refactor
 	public static Map<String, String> getTasks(APIReader apiReader) {
 		Map<String, String> allTasks = new HashMap<>();
 		Session session = apiReader.getSession();
@@ -49,6 +54,14 @@ public class TimesheetInfoHelper {
 		allTasks.putAll(((List<TimeOffTypes>)JsonHelper.jsonToList(tasks1, TimeOffTypes.class)).stream().collect(Collectors.toMap(TimeOffTypes::getTimeOffTypeID, TimeOffTypes::getName)));
 
 		return allTasks;
+	}
+	
+	//TODO : Need to refactor
+	public static Map<String, String> getBillableTasks(APIReader apiReader) {
+		Map<String, String> tasks = getTasks(apiReader);
+		Map<String, String> billableTasks = tasks.entrySet().stream().filter(i -> i.getValue().matches("(\\d+)(B - )(.*)")).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		billableTasks.putAll(tasks.entrySet().stream().filter(i -> ("Company Holiday".equals(i.getValue()) || "PTO".equals(i.getValue()))).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+		return billableTasks;
 	}
 	 
 	 public static String formatUrl(String url, Object... params) {

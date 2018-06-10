@@ -11,7 +11,7 @@ public class APIReader {
 	private Session session = null;
 	private APIReader() {}
 	
-	public static APIReader openConnection(UserInfo userInfo) {
+	public static APIReader getConnection(UserInfo userInfo) {
 		
 		// Specify the base URL to the RESTful web service
 		RestAssured.baseURI = "https://app.clicktime.com/API/1.3/";

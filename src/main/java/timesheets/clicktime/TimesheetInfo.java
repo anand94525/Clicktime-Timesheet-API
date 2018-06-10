@@ -20,13 +20,13 @@ public class TimesheetInfo extends BaseClicktime{
 	//Main method to test.
 	public static void main1(String... args) {
 		USERS.forEach(i -> {
-			APIReader reader = APIReader.openConnection(i);
-			System.out.println(TimesheetInfoHelper.getTasks(reader).size());
-			TimesheetInfoHelper.getTasks(reader).forEach((x,y)-> System.out.println("key : " + x + " , value : " + y));
+			APIReader reader = APIReader.getConnection(i);
+			//System.out.println(TimesheetInfoHelper.getTasks(reader).size());
+			TimesheetInfoHelper.getBillableTasks(reader).forEach((x,y)-> System.out.println("key : " + x + " , value : " + y));
 		});
 	}
 	
-	//TODO : Need to add logic for filtering billable hours only. Also, Need to refactor code.
+	//TODO : Need to refactor code.
 	// Map<String, Map<String, Pair<Double, Double>>> should be the return type. 
 	// Outer map will hold username as a key and value as map.
 	// The value map will contain date as a key and Pair as a value.
@@ -34,13 +34,13 @@ public class TimesheetInfo extends BaseClicktime{
 	public static Map<String, Map<String, Pair<Double, Double>>> getBillableHours(String dateFrom, String dateTo) {
 		Map<String, Map<String, Pair<Double, Double>>> userwiseTimeSheet = new ConcurrentHashMap<>();
 		USERS.forEach(i -> {
-			APIReader reader = APIReader.openConnection(i);
+			APIReader reader = APIReader.getConnection(i);
 			Session session = reader.getSession();
 			String entries = reader.execute(TimesheetInfoHelper.formatUrl(CT_URLS.TIME_ENTRIES_FROM_TO_DATE.getUrl(), session.getCompanyID(), session.getUserID(), dateFrom, dateTo));
 			
 			TypeReference<List<TimeEntryDetails>> mapType = new TypeReference<List<TimeEntryDetails>>() {};
 			List<TimeEntryDetails> entryList = JsonHelper.jsonToObjectList(entries, mapType);
-			Map<String, Pair<Double, Double>> datewiseEntries = TimesheetInfoHelper.getDatewiseTimeEntries(entryList);
+			Map<String, Pair<Double, Double>> datewiseEntries = TimesheetInfoHelper.getDatewiseTimeEntries(entryList, TimesheetInfoHelper.getBillableTasks(reader));
 			userwiseTimeSheet.put(i.getUsername(), datewiseEntries);
 		});
 		return userwiseTimeSheet;
@@ -50,8 +50,9 @@ public class TimesheetInfo extends BaseClicktime{
 		return getBillableHours(dateFrom, dateFrom);
 	}
 
+	//Main method to test
 	public static void main(String[] args) {
-		Map<String, Map<String, Pair<Double, Double>>> map = getBillableHours("20180502");
+		Map<String, Map<String, Pair<Double, Double>>> map = getBillableHours("20180502", "20180508");
 		for (Entry<String, Map<String, Pair<Double, Double>>> entry : map.entrySet()) {
 			entry.getValue().forEach((i, j) -> System.out.println("User :: " + entry.getKey() + "::: Date :" + i + " Working hours :" + j.getLeft() + " ::: Off hours :" + j.getRight()));
 		}
