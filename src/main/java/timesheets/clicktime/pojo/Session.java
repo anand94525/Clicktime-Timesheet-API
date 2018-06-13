@@ -1,4 +1,4 @@
-package timesheets.clicktime.helper;
+package timesheets.clicktime.pojo;
 
 import java.util.HashMap;
 import java.util.Map;

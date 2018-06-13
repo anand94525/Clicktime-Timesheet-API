@@ -4,17 +4,26 @@ import io.restassured.RestAssured;
 import io.restassured.http.Header;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import timesheets.clicktime.common.CT_URLS;
+import timesheets.clicktime.pojo.Session;
 import timesheets.clicktime.pojo.UserInfo;
 
 public class APIReader {
-	private RequestSpecification httpRequest = null;
+	private Connection connection;
+	public APIReader(UserInfo userInfo) {
+		connection = new Connection(userInfo);
+	}
+	
+	public Connection getConnection() {
+		return this.connection;
+	}
+	/*private RequestSpecification httpRequest = null;
 	private Session session = null;
-	private APIReader() {}
 	
 	public static APIReader getConnection(UserInfo userInfo) {
 		
 		// Specify the base URL to the RESTful web service
-		RestAssured.baseURI = "https://app.clicktime.com/API/1.3/";
+		RestAssured.baseURI = CT_URLS.BASE_URI.getUrl();
 		Header header2 = new Header("Authorization", "Basic "+ userInfo.getAuthKey());
 		 
 		APIReader apiReader = new APIReader();
@@ -32,7 +41,7 @@ public class APIReader {
 		try {
 			// Make a request to the server by specifying the method Type and the method URL.
 			// This will return the Response from the server. Store the response in a variable.
-			Response response = this.httpRequest.request().get("Session");
+			Response response = this.httpRequest.request().get(CT_URLS.SESSION.getUrl());
 	 
 			// Now let us print the body of the message to see what response
 			// we have recieved from the server
@@ -41,14 +50,14 @@ public class APIReader {
 		} catch(NullPointerException e) {
 			throw new RuntimeException("Connection was not stablished, make sure to call openConnection() method first before calling getSession().");
 		}
-	}
+	}*/
 	
 	public String execute(String apiURL) {
 		Response response = null;
 		try {
 		// Make a request to the server by specifying the method Type and the method URL.
 		// This will return the Response from the server. Store the response in a variable.
-		 response = this.httpRequest.request().get(apiURL);
+		 response = this.getConnection().getRequest().request().get(apiURL);
 		} catch(NullPointerException e) {
 			throw new RuntimeException("Connection was not stablished, make sure to call openConnection() method first before calling execute().");
 		}

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import timesheets.clicktime.common.CT_URLS;
 import timesheets.clicktime.common.JsonHelper;
 import timesheets.clicktime.helper.APIReader;
-import timesheets.clicktime.helper.Session;
+import timesheets.clicktime.pojo.Session;
 import timesheets.clicktime.pojo.Tasks;
 import timesheets.clicktime.pojo.TimeOffTypes;
 import timesheets.clicktime.pojo.UserInfo;

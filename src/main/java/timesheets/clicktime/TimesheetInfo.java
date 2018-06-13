@@ -4,8 +4,8 @@ import timesheets.clicktime.base.BaseClicktime;
 import timesheets.clicktime.common.CT_URLS;
 import timesheets.clicktime.common.JsonHelper;
 import timesheets.clicktime.helper.APIReader;
-import timesheets.clicktime.helper.Session;
 import timesheets.clicktime.helper.TimesheetInfoHelper;
+import timesheets.clicktime.pojo.Session;
 import timesheets.clicktime.pojo.TimeEntryDetails;
 
 import java.util.List;
@@ -20,9 +20,9 @@ public class TimesheetInfo extends BaseClicktime{
 	//Main method to test.
 	public static void main1(String... args) {
 		USERS.forEach(i -> {
-			APIReader reader = APIReader.getConnection(i);
+			//APIReader reader = APIReader.getConnection(i);
 			//System.out.println(TimesheetInfoHelper.getTasks(reader).size());
-			TimesheetInfoHelper.getBillableTasks(reader).forEach((x,y)-> System.out.println("key : " + x + " , value : " + y));
+			//TimesheetInfoHelper.getBillableTasks(reader).forEach((x,y)-> System.out.println("key : " + x + " , value : " + y));
 		});
 	}
 	
@@ -34,8 +34,8 @@ public class TimesheetInfo extends BaseClicktime{
 	public static Map<String, Map<String, Pair<Double, Double>>> getBillableHours(String dateFrom, String dateTo) {
 		Map<String, Map<String, Pair<Double, Double>>> userwiseTimeSheet = new ConcurrentHashMap<>();
 		USERS.forEach(i -> {
-			APIReader reader = APIReader.getConnection(i);
-			Session session = reader.getSession();
+			APIReader reader = new APIReader(i);
+			Session session = reader.getConnection().getSession();
 			String entries = reader.execute(TimesheetInfoHelper.formatUrl(CT_URLS.TIME_ENTRIES_FROM_TO_DATE.getUrl(), session.getCompanyID(), session.getUserID(), dateFrom, dateTo));
 			
 			TypeReference<List<TimeEntryDetails>> mapType = new TypeReference<List<TimeEntryDetails>>() {};

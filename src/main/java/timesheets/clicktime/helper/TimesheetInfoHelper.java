@@ -12,6 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import timesheets.clicktime.common.CT_URLS;
 import timesheets.clicktime.common.JsonHelper;
+import timesheets.clicktime.pojo.Session;
 import timesheets.clicktime.pojo.Tasks;
 import timesheets.clicktime.pojo.TimeEntryDetails;
 import timesheets.clicktime.pojo.TimeOffTypes;
@@ -46,7 +47,7 @@ public class TimesheetInfoHelper {
 	//TODO : Need to refactor
 	public static Map<String, String> getTasks(APIReader apiReader) {
 		Map<String, String> allTasks = new HashMap<>();
-		Session session = apiReader.getSession();
+		Session session = apiReader.getConnection().getSession();
 		String tasks = apiReader.execute(String.format(CT_URLS.TASKS.getUrl(), session.getCompanyID(), session.getUserID()));
 		allTasks.putAll(((List<Tasks>)JsonHelper.jsonToList(tasks, Tasks.class)).stream().collect(Collectors.toMap(Tasks::getTaskID, Tasks::getDisplayName)));
 		
