@@ -10,16 +10,19 @@ import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import timesheets.clicktime.common.CT_URLS;
 import timesheets.clicktime.common.JsonHelper;
 import timesheets.clicktime.pojo.Session;
 import timesheets.clicktime.pojo.Tasks;
 import timesheets.clicktime.pojo.TimeEntryDetails;
 import timesheets.clicktime.pojo.TimeOffTypes;
+import timesheets.clicktime.pojo.UserInfo;
 
 public class TimesheetInfoHelper {
 	
-	public static Map<String, Pair<Double, Double>> getDatewiseTimeEntries(List<TimeEntryDetails> entryList, Map<String, String> tasks) {
+	public static Map<String, Pair<Double, Double>> getDatewiseTimeEntriesMap(List<TimeEntryDetails> entryList, Map<String, String> tasks) {
 		Map<String, Pair<Double, Double>> datewiseEntries = new ConcurrentHashMap<>();
 		//entryList.forEach(j -> System.out.println(k.toString()));
 		entryList.forEach(j -> {
@@ -44,27 +47,22 @@ public class TimesheetInfoHelper {
 		return datewiseEntries;
 	}
 	
-	//TODO : Need to refactor
-	public static Map<String, String> getTasks(APIReader apiReader) {
-		Map<String, String> allTasks = new HashMap<>();
-		Session session = apiReader.getConnection().getSession();
-		String tasks = apiReader.execute(String.format(CT_URLS.TASKS.getUrl(), session.getCompanyID(), session.getUserID()));
-		allTasks.putAll(((List<Tasks>)JsonHelper.jsonToList(tasks, Tasks.class)).stream().collect(Collectors.toMap(Tasks::getTaskID, Tasks::getDisplayName)));
-		
-		String tasks1 = apiReader.execute(String.format(CT_URLS.TIME_OFF_TYPES.getUrl(), session.getCompanyID(), session.getUserID()));
-		allTasks.putAll(((List<TimeOffTypes>)JsonHelper.jsonToList(tasks1, TimeOffTypes.class)).stream().collect(Collectors.toMap(TimeOffTypes::getTimeOffTypeID, TimeOffTypes::getName)));
-
-		return allTasks;
-	}
 	
-	//TODO : Need to refactor
-	public static Map<String, String> getBillableTasks(APIReader apiReader) {
-		Map<String, String> tasks = getTasks(apiReader);
-		Map<String, String> billableTasks = tasks.entrySet().stream().filter(i -> i.getValue().matches("(\\d+)(B - )(.*)")).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-		billableTasks.putAll(tasks.entrySet().stream().filter(i -> ("Company Holiday".equals(i.getValue()) || "PTO".equals(i.getValue()))).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-		return billableTasks;
-	}
-	 
+	public static void collectBillableHoursAndTimeOff(String dateFrom, String dateTo,
+			Map<String, Map<String, Pair<Double, Double>>> userwiseTimeSheet, UserInfo userInfo, Map<String, String> tasks) {
+			APIReader reader = new APIReader(userInfo);
+			Session session = reader.getConnection().getSession();
+			String entries = reader.execute(TimesheetInfoHelper.formatUrl(CT_URLS.TIME_ENTRIES_FROM_TO_DATE.getUrl(),
+					session.getCompanyID(), session.getUserID(), dateFrom, dateTo));
+
+			TypeReference<List<TimeEntryDetails>> mapType = new TypeReference<List<TimeEntryDetails>>() {
+			};
+			List<TimeEntryDetails> entryList = JsonHelper.jsonToObjectList(entries, mapType);
+			Map<String, Pair<Double, Double>> datewiseEntries = TimesheetInfoHelper.getDatewiseTimeEntriesMap(entryList,
+					tasks);
+			userwiseTimeSheet.put(userInfo.getUsername(), datewiseEntries);
+		}
+	
 	 public static String formatUrl(String url, Object... params) {
 		 return String.format(url, params);
 	 }
