@@ -38,7 +38,8 @@ public class TimesheetInfo extends BaseClicktime {
 	public static Map<String, Map<String, Pair<Double, Double>>> getBillableHours(String dateFrom, String dateTo) {
 		Map<String, Map<String, Pair<Double, Double>>> userwiseTimeSheet = new ConcurrentHashMap<>();
 		USERS.forEach(i -> {
-			TimesheetInfoHelper.collectBillableHoursAndTimeOff(dateFrom, dateTo, userwiseTimeSheet, i, getBillableTasks(i));
+			Map<String, Pair<Double, Double>> timesheet = TimesheetInfoHelper.collectTimeSheet(dateFrom, dateTo, i, getBillableTasks(i));
+			userwiseTimeSheet.put(i.getUsername(), timesheet);
 		});
 		return userwiseTimeSheet;
 	}
@@ -62,7 +63,33 @@ public class TimesheetInfo extends BaseClicktime {
 			String dateTo) {
 		Map<String, Map<String, Pair<Double, Double>>> userwiseTimeSheet = new ConcurrentHashMap<>();
 		users.forEach(i -> {
-			TimesheetInfoHelper.collectBillableHoursAndTimeOff(dateFrom, dateTo, userwiseTimeSheet, i, getBillableTasks(i));
+			Map<String, Pair<Double, Double>> timesheet = TimesheetInfoHelper.collectTimeSheet(dateFrom, dateTo, i, getBillableTasks(i));
+			userwiseTimeSheet.put(i.getUsername(), timesheet);
+		});
+		return userwiseTimeSheet;
+	}
+	
+	/**
+	 * Method to get time entries having hours and time off hours.
+	 * 
+	 * @param users
+	 *            - list of UserInfo objects containing username and password.
+	 * @param dateFrom
+	 *            - start date of time sheet.
+	 * @param dateTo
+	 *            - to date of time sheet.
+	 * @return It returns time sheet data as Map<String, Map<String, Pair<Double,
+	 *         Double>>>. 1.Outer map will hold user name as a key and value as map.
+	 *         \n 2.The value map will contain date as a key and Pair as a value.\n
+	 *         3.First value of pair will contain billable hour and second value of
+	 *         pair will contain Time OFF hours such as PTO, company holiday hours.
+	 */
+	public static Map<String, Map<String, Pair<Double, Double>>> getAllTimeEntries(List<UserInfo> users, String dateFrom,
+			String dateTo) {
+		Map<String, Map<String, Pair<Double, Double>>> userwiseTimeSheet = new ConcurrentHashMap<>();
+		users.forEach(i -> {
+			Map<String, Pair<Double, Double>> timesheet = TimesheetInfoHelper.collectTimeSheet(dateFrom, dateTo, i, getTasks(i));
+			userwiseTimeSheet.put(i.getUsername(), timesheet);
 		});
 		return userwiseTimeSheet;
 	}
@@ -85,7 +112,31 @@ public class TimesheetInfo extends BaseClicktime {
 	public static Map<String, Map<String, Pair<Double, Double>>> getBillableHours(UserInfo userInfo, String dateFrom,
 			String dateTo) {
 		Map<String, Map<String, Pair<Double, Double>>> userwiseTimeSheet = new ConcurrentHashMap<>();
-		TimesheetInfoHelper.collectBillableHoursAndTimeOff(dateFrom, dateTo, userwiseTimeSheet, userInfo, getBillableTasks(userInfo));
+		Map<String, Pair<Double, Double>> timesheet = TimesheetInfoHelper.collectTimeSheet(dateFrom, dateTo, userInfo, getBillableTasks(userInfo));
+		userwiseTimeSheet.put(userInfo.getUsername(), timesheet);
+		return userwiseTimeSheet;
+	}
+	
+	/**
+	 * Method to get time entries having hours and time off hours.
+	 * 
+	 * @param userInfo
+	 *            - UserInfo objects containing username and password.
+	 * @param dateFrom
+	 *            - start date of time sheet.
+	 * @param dateTo
+	 *            - to date of time sheet.
+	 * @return It returns time sheet data as Map<String, Map<String, Pair<Double,
+	 *         Double>>>. 1.Outer map will hold user name as a key and value as map.
+	 *         \n 2.The value map will contain date as a key and Pair as a value.\n
+	 *         3.First value of pair will contain billable hour and second value of
+	 *         pair will contain Time OFF hours such as PTO, company holiday hours.
+	 */
+	public static Map<String, Map<String, Pair<Double, Double>>> getAllTimeEntries(UserInfo userInfo, String dateFrom,
+			String dateTo) {
+		Map<String, Map<String, Pair<Double, Double>>> userwiseTimeSheet = new ConcurrentHashMap<>();
+		Map<String, Pair<Double, Double>> timesheet = TimesheetInfoHelper.collectTimeSheet(dateFrom, dateTo, userInfo, getTasks(userInfo));
+		userwiseTimeSheet.put(userInfo.getUsername(), timesheet);
 		return userwiseTimeSheet;
 	}
 
@@ -125,6 +176,26 @@ public class TimesheetInfo extends BaseClicktime {
 			String dateFrom) {
 		return getBillableHours(users, dateFrom, dateFrom);
 	}
+	
+	/**
+	 * Method to get time entries having hours and time off hours.
+	 * 
+	 * @param users
+	 *            - list of UserInfo objects containing username and password.
+	 * @param dateFrom
+	 *            - start date of time sheet.
+	 * @param dateTo
+	 *            - to date of time sheet.
+	 * @return It returns time sheet data as Map<String, Map<String, Pair<Double,
+	 *         Double>>>. 1.Outer map will hold user name as a key and value as map.
+	 *         \n 2.The value map will contain date as a key and Pair as a value.\n
+	 *         3.First value of pair will contain billable hour and second value of
+	 *         pair will contain Time OFF hours such as PTO, company holiday hours.
+	 */
+	public static Map<String, Map<String, Pair<Double, Double>>> getAllTimeEntries(List<UserInfo> users,
+			String dateFrom) {
+		return getAllTimeEntries(users, dateFrom, dateFrom);
+	}
 
 	/**
 	 * Method to get time entries having billable hours and time off hours.
@@ -143,6 +214,25 @@ public class TimesheetInfo extends BaseClicktime {
 	 */
 	public static Map<String, Map<String, Pair<Double, Double>>> getBillableHours(UserInfo userInfo, String dateFrom) {
 		return getBillableHours(userInfo, dateFrom, dateFrom);
+	}
+	
+	/**
+	 * Method to get time entries having hours and time off hours.
+	 * 
+	 * @param userInfo
+	 *            - UserInfo - object containing username and password.
+	 * @param dateFrom
+	 *            - start date of time sheet.
+	 * @param dateTo
+	 *            - to date of time sheet.
+	 * @return It returns time sheet data as Map<String, Map<String, Pair<Double,
+	 *         Double>>>. 1.Outer map will hold user name as a key and value as map.
+	 *         \n 2.The value map will contain date as a key and Pair as a value.\n
+	 *         3.First value of pair will contain billable hour and second value of
+	 *         pair will contain Time OFF hours such as PTO, company holiday hours.
+	 */
+	public static Map<String, Map<String, Pair<Double, Double>>> getAllTimeEntries(UserInfo userInfo, String dateFrom) {
+		return getAllTimeEntries(userInfo, dateFrom, dateFrom);
 	}
 	
 	/**
@@ -177,7 +267,7 @@ public class TimesheetInfo extends BaseClicktime {
 
 	// Main method to test
 	public static void main(String[] args) {
-		Map<String, Map<String, Pair<Double, Double>>> map = getBillableHours(new UserInfo("anands@xpanxion.co.in", "3bash19"), "20180502", "20180508");
+		Map<String, Map<String, Pair<Double, Double>>> map = getAllTimeEntries(new UserInfo("anands@xpanxion.co.in", "3bash19"), "20180502", "20180508");
 		for (Entry<String, Map<String, Pair<Double, Double>>> entry : map.entrySet()) {
 			entry.getValue().forEach((i, j) -> System.out.println("User :: " + entry.getKey() + "::: Date :" + i
 					+ " Working hours :" + j.getLeft() + " ::: Off hours :" + j.getRight()));
