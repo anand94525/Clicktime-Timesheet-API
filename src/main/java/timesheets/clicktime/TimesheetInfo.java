@@ -267,7 +267,7 @@ public class TimesheetInfo extends BaseClicktime {
 
 	// Main method to test
 	public static void main(String[] args) {
-		Map<String, Map<String, Pair<Double, Double>>> map = getAllTimeEntries(new UserInfo("anands@xpanxion.co.in", "3bash19"), "20180502", "20180508");
+		Map<String, Map<String, Pair<Double, Double>>> map = getAllTimeEntries(new UserInfo("anands@xpanxion.co.in", "3bash19"), "20180709", "20180713");
 		for (Entry<String, Map<String, Pair<Double, Double>>> entry : map.entrySet()) {
 			entry.getValue().forEach((i, j) -> System.out.println("User :: " + entry.getKey() + "::: Date :" + i
 					+ " Working hours :" + j.getLeft() + " ::: Off hours :" + j.getRight()));

@@ -31,7 +31,7 @@ public class TimesheetInfoHelper {
 			
 			MutableDouble timeOffEntries = new MutableDouble(0);
 			j.getTimeOffEntries().forEach(timeOffEntry -> {
-				if(tasks.containsKey(timeOffEntry.getTimeOffEntryID())) {
+				if(tasks.containsKey(timeOffEntry.getTimeOffTypeID())) {
 					timeOffEntries.add(timeOffEntry.getHours());
 				}
 			});
